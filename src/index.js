@@ -38,13 +38,16 @@ app.use(express.json())
 
 app.get('/api/public', function (req, res) {
   const connection = mysql.createConnection(dbConfig);
-  const rows = connection.query('SELECT * FROM users');
-  console.log(rows)
+  connection.query('SELECT * FROM Users', (err, rows) => {
+      if (err) {
+          console.error('Error executing MySQL query:', err.stack);
+          return;
+      }
+      console.log('Data received from MySQL database:');
+      //console.log(rows);
+      res.json(rows);
+  });
   connection.end();
-  const user = rows[0];
-  if (!user) {
-    return res.status(401).send('Invalid credentials');
-  }
 });
 
 app.get('/api/private', function (req, res) {
