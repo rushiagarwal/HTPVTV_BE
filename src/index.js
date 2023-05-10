@@ -110,10 +110,11 @@ app.post('/api/login', async (req, res) => {
           const pass = await bcrypt.compare(password, results[0].Password);
           if (pass) {
             const user = results[0];
+            res.send(results[0]);
             //return res.send(user);
             // Generate JWT token
-            const token = jwt.sign({ sub: user.id }, 'HTBV', { algorithm: 'HS256' }); // Secret key = HTBV
-            res.json({ access_token: token });
+            // const token = jwt.sign({ sub: user.id }, 'HTBV', { algorithm: 'HS256' }); // Secret key = HTBV
+            // res.json({ access_token: token });
           }
           else {
             return res.status(401).send('Invalid credentials');
