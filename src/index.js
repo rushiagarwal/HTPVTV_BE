@@ -36,6 +36,10 @@ app.use(express.json())
 //   tokenSigningAlg: 'HS256',
 // })
 
+app.get('/', function(req,res){
+  res.send('Hii!');
+});
+
 app.get('/api/public', function (req, res) {
   const connection = mysql.createConnection(dbConfig);
   connection.query('SELECT * FROM Users', (err, rows) => {
