@@ -37,7 +37,7 @@ app.use(express.json())
 // })
 
 app.get('/', function(req,res){
-  res.send('Hii!');
+  res.send('Hii! It is working');
 });
 
 app.get('/api/public', function (req, res) {
