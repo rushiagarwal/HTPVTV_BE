@@ -40,7 +40,7 @@ app.get('/', function(req,res){
   res.send('Hii! It is working');
 });
 
-app.get('/api/public', function (req, res) {
+app.get('/public', function (req, res) {
   const connection = mysql.createConnection(dbConfig);
   connection.query('SELECT * FROM Users', (err, rows) => {
       if (err) {
