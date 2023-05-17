@@ -5,8 +5,163 @@ const auth0 = require('auth0');
 const mysql = require('mysql2');
 const app = express();
 const bcrypt = require("bcryptjs");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
 //const ManagementClient = require('auth0').ManagementClient;
 const AuthenticationClient = require('auth0').AuthenticationClient;
+
+const swaggeroptions ={
+  swaggerDefinition:{
+    openapi: "3.0.0",
+    info: {
+      title :"HTPVTV Api",
+      "version": "1.0.1",
+      summary: "A pet store manager.",
+      description : "HTPVTV Api information",
+      // "termsOfService": "https://google.com",
+      contact : {
+        // name: "Amaxing developer",
+        // "url": "https://www.google.com/",
+        // "email": "lordgmeryoyo@gmail.com"
+      },
+      // "license": {
+      //   "name": "Apache 2.0",
+      //   "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+      // },
+    },
+    // servers : [{
+      //     "url": "http://localhost:3010",
+      //     "description": "Development server"
+      //   }],
+    "servers": [
+      {
+        "url": "http://localhost:3010",
+        "description": "The production API server",
+        // "variables": {
+        //     "username": {
+        //       "default": "demo",
+        //       "description": "this value is assigned by the service provider, in this example `gigantic-server.com`"
+        //     },
+        //     "port": {
+        //       "enum": [
+        //         "8443",
+        //         "443"
+        //       ],
+        //       "default": "8443"
+        //     },
+        //     "basePath": {
+        //       "default": "v2"
+        //     }
+        // }
+      }
+    ],
+    "components": {
+        //To add schemas at the end.
+        // "schemas": {
+        //   "GeneralError": {
+        //     "type": "object",
+        //     "properties": {
+        //       "code": {
+        //         "type": "integer",
+        //         "format": "int32"
+        //       },
+        //       "message": {
+        //         "type": "string"
+        //       }
+        //     }
+        //   },
+        //   "Category": {
+        //     "type": "object",
+        //     "properties": {
+        //       "id": {
+        //         "type": "integer",
+        //         "format": "int64"
+        //       },
+        //       "name": {
+        //         "type": "string"
+        //       }
+        //     }
+        //   },
+        //   "Tag": {
+        //     "type": "object",
+        //     "properties": {
+        //       "id": {
+        //         "type": "integer",
+        //         "format": "int64"
+        //       },
+        //       "name": {
+        //         "type": "string"
+        //       }
+        //     }
+        //   }
+        // },
+        "parameters": {
+          "skipParam": {
+            "name": "skip",
+            "in": "query",
+            "description": "number of items to skip",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "limitParam": {
+            "name": "limit",
+            "in": "query",
+            "description": "max records to return",
+            "required": true,
+            "schema" : {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "responses": {
+          "NotFound": {
+            "description": "Entity not found."
+          },
+          "IllegalInput": {
+            "description": "Illegal input for operation."
+          },
+          "GeneralError": {
+            "description": "General Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                }
+              }
+            }
+          }
+        },
+        "securitySchemes": {
+          "api_key": {
+            "type": "apiKey",
+            "name": "api_key",
+            "in": "header"
+          },
+          "petstore_auth": {
+            "type": "oauth2",
+            "flows": {
+              "implicit": {
+                "authorizationUrl": "https://example.org/api/oauth/dialog",
+                "scopes": {
+                  "write:pets": "modify pets in your account",
+                  "read:pets": "read your pets"
+                }
+              }
+            }
+          }
+        }
+    },
+  },
+  apis: ["./index.js"]
+};
+
+const swaggerDocs = swaggerJsDoc(swaggeroptions);
+app.use("/", swaggerUI.serve,swaggerUI.setup(swaggerDocs));
+//app.use("/api-docs", swaggerUI.serve,swaggerUI.setup(swaggerDocs));  If  want to add in url after port
 
 app.use(cors());
 const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
@@ -36,11 +191,53 @@ app.use(express.json())
 //   tokenSigningAlg: 'HS256',
 // })
 
+
+
+//Routes
+/**
+ * @swagger
+ * /:
+ *  get:
+ *    description: Use to get a string
+ *    summary: To get a string
+ *    operationId: get string
+ *    tags: [String]
+ *    responses:
+ *      '200':
+ *        description:  A successful response
+ *        content: 
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items: 
+//  *                  $ref: "BE_2/src/index.js"
+ * 
+ */
 app.get('/', function(req,res){
-  res.send('Hii! It is working. Its actually working. Jovas ne nikaaaa');
+  res.send('Hii! It is working');
 });
 
-app.get('/public', function (req, res) {
+//Routes
+/**
+ * @swagger
+ * /users:
+ *  get:
+ *    description: Use to get all users
+ *    summary: To get all users
+ *    operationId: getallusers
+ *    tags: [Users]
+ *    responses:
+ *      '200':
+ *        description:  A successful response
+ *        content: 
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items: 
+//  *                  $ref: "BE_2/src/index.js"
+ * 
+ */
+app.get('/users', function (req, res) {
   const connection = mysql.createConnection(dbConfig);
   connection.query('SELECT * FROM Users', (err, rows) => {
       if (err) {
@@ -52,6 +249,77 @@ app.get('/public', function (req, res) {
       res.json(rows);
   });
   connection.end();
+});
+
+//Routes
+/**
+ * @swagger
+ * /users/{id}:
+ *  get:
+ *    description: Use to get user by id
+ *    summary: To get user by id
+ *    operationId: getuserbyid
+ *    tags: [Users]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema: 
+ *          type: string
+ *        required: true
+ *        description: The User id
+ *    responses:
+ *      '200':
+ *        description:  A successful response
+ *        content: 
+ *            application/json:
+ *              schema:
+ *                type: array
+//*                items: 
+//  *                  $ref: "BE_2/src/index.js"
+ */
+app.get("/user/:id",function(req,res){
+  // console.log(id);
+  // const{ id } = req.body;
+  // const connection = mysql.createConnection(dbConfig);
+  // connection.query(
+  //   'select * from Users where UserID = ?',
+  //   id,
+  //   async function (err, results){
+  //     if(results.length > 0) {
+  //       res.send(results[0])
+  //     }
+  //     else{
+  //       res.send("No user found.")
+  //     }
+  //   }
+  // )
+});
+
+//Routes
+/**
+ * @swagger
+ * /user/add:
+ *  post:
+ *    description: Use to add user
+ *    summary: To add user
+ *    operationId: adduser
+ *    tags: [Users]
+ *    requestBody:
+ *      required: true
+ *    responses:
+ *      '200':
+ *        description:  A successful response
+ *      '500':
+ *        description : Error
+//  *        content: 
+//  *            application/json:
+//  *              schema:
+//  *                type: array
+//  *                items: 
+//  *                  $ref: "BE_2/src/index.js"
+ */
+app.post('/user/add', function(req,res){
+  res.send("Added");
 });
 
 app.get('/api/private', function (req, res) {
